@@ -1,0 +1,145 @@
+# ~/.tmux.conf
+
+# ============================================
+# ESSENTIAL SETTINGS
+# ============================================
+
+# Fix Vim ESC delay
+set -sg escape-time 0
+
+# Increase scrollback buffer
+set -g history-limit 50000
+
+# Start windows and panes at 1, not 0
+set -g base-index 1
+setw -g pane-base-index 1
+
+# Enable mouse support
+set -g mouse on
+
+# Enable focus events for vim autoread
+set -g focus-events on
+
+# Set terminal with proper colors
+set -g default-terminal "tmux-256color"
+set -as terminal-features ",xterm-256color:RGB"
+
+# Aggressive resize for multi-client
+setw -g aggressive-resize on
+
+# ============================================
+# KEY BINDINGS
+# ============================================
+
+# Change prefix to Ctrl+a (more ergonomic)
+unbind C-b
+set -g prefix C-a
+bind C-a send-prefix
+
+# Reload config
+bind r source-file ~/.tmux.conf \; display "Config reloaded!"
+
+bind c new-window -c "#{pane_current_path}"
+
+bind h split-window -hb -c "#{pane_current_path}"
+bind j split-window -v -c "#{pane_current_path}"
+bind k split-window -vb -c "#{pane_current_path}"
+bind l split-window -h -c "#{pane_current_path}"
+
+# prefix + f: Toggle pane zoom (fullscreen current pane)
+bind f resize-pane -Z
+
+# Pane navigation, no prefix 
+bind -n C-h select-pane -L
+bind -n C-j select-pane -D
+bind -n C-k select-pane -U
+bind -n C-l select-pane -R
+
+# Vim-style pane resizing
+bind -r H resize-pane -L 5
+bind -r J resize-pane -D 5
+bind -r K resize-pane -U 5
+bind -r L resize-pane -R 5
+
+# ============================================
+# WINDOW MANAGEMENT
+# ============================================
+
+# Unbind the default 'w' (window manager)
+unbind w
+
+# Bind 'w' to kill the current window (with safety prompt)
+bind w confirm-before -p "kill-window #W? (y/n)" kill-window
+
+# Alternatively, if you want it to close instantly without asking, use this instead:
+# bind w kill-window
+
+# Bind 'W' (Shift+w) to the interactive window manager UI
+bind W choose-tree -Zw
+
+
+# ============================================
+# APPEARANCE
+# ============================================
+
+# Status bar position
+set -g status-position top
+
+# Status bar colors
+set -g status-style 'bg=#13161d fg=#8b949e'
+set -g status-left-length 20
+set -g status-right-length 50
+
+# If SSH_CLIENT is set, override the background to blue
+if-shell 'test -n "$SSH_CLIENT"' \
+  "set -g status-style 'bg=#005fbc fg=#ffffff'"
+
+# The #{?client_prefix,...} part turns the background YELLOW when you press Ctrl+b
+set -g status-left "#{?client_prefix,#[bg=#e6db74]#[fg=#000000] #{prefix} ,#[fg=#00e68a,bold] #S }#[bg=default]#[fg=#30363d]│ "
+
+# Status bar content
+# set -g status-left '#[fg=#00e68a,bold] #S #[fg=#30363d]│ '
+set -g status-right "#[fg=#8b949e]Swap Mem: #(/usr/sbin/sysctl vm.swapusage | awk '{print $7}') #[fg=#30363d]│#[fg=#8b949e] %d-%m-%Y %H:%M "
+
+# Window status
+setw -g window-status-format ' #I:#W '
+setw -g window-status-current-format '#[fg=#00e68a,bold] #I:#W '
+
+# Pane border colors
+set -g pane-border-style 'fg=#30363d'
+set -g pane-active-border-style 'fg=#00e68a'
+
+# Message styling
+set -g message-style 'bg=#00e68a fg=#000000 bold'
+
+# ============================================
+# COPY MODE
+# ============================================
+
+# Use vi keys
+setw -g mode-keys vi
+
+# Vi-style copy bindings
+bind -T copy-mode-vi v send -X begin-selection
+bind -T copy-mode-vi y send -X copy-pipe-and-cancel "pbcopy"  # macOS
+# bind -T copy-mode-vi y send -X copy-pipe-and-cancel "xclip -selection clipboard -i"  # Linux
+
+# ============================================
+# PLUGINS (via TPM)
+# ============================================
+
+# Install TPM first:
+# git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+
+set -g @plugin 'tmux-plugins/tpm'
+set -g @plugin 'tmux-plugins/tmux-sensible'
+set -g @plugin 'tmux-plugins/tmux-resurrect'
+set -g @plugin 'tmux-plugins/tmux-continuum'
+
+# Plugin settings
+set -g @resurrect-strategy-vim 'session'
+set -g @resurrect-strategy-nvim 'session'
+set -g @continuum-restore 'on'
+
+# Initialize TPM (keep at bottom)
+run '~/.tmux/plugins/tpm/tpm'
