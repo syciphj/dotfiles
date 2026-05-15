@@ -133,3 +133,19 @@ export PATH="$HOME/.local/bin:$PATH"
 
 # opencode
 export PATH="{{ .chezmoi.homeDir }}/.opencode/bin:$PATH"
+
+# work folder scripts
+export WORK_FOLDER_PATH="{{ .work_folder_path }}"
+
+alias start-back="start-session-back.sh $WORK_FOLDER_PATH/anote-server"
+alias start-front="start-session-front.sh $WORK_FOLDER_PATH/anote-client dev-frontend"
+# end work folder scripts
+
+# start ssh to work ip
+ssh-work() {
+  if ! tmux has-session -t ssh-remote 2>/dev/null; then
+    tmux new-session -d -s ssh-remote 'ssh {{ .work_ssh_ip }}'
+    tmux set-option -t ssh-remote status-style 'bg=#005fbc fg=#ffffff'
+  fi
+  tmux attach-session -t ssh-remote
+}
