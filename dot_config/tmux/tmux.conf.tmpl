@@ -1,4 +1,4 @@
-# ~/.tmux.conf
+# ~/.config/tmux/tmux.conf
 
 # ============================================
 # ESSENTIAL SETTINGS
@@ -27,6 +27,10 @@ set -as terminal-features ",xterm-256color:RGB"
 # Aggressive resize for multi-client
 setw -g aggressive-resize on
 
+# Allow key combinations like shift+enter
+set-option -g extended-keys on
+set-option -g xterm-keys on
+
 # ============================================
 # KEY BINDINGS
 # ============================================
@@ -37,7 +41,7 @@ set -g prefix C-a
 bind C-a send-prefix
 
 # Reload config
-bind r source-file ~/.tmux.conf \; display "Config reloaded!"
+bind r source-file ~/.config/tmux/tmux.conf \; display "Config reloaded!"
 
 bind c new-window -c "#{pane_current_path}"
 
@@ -90,10 +94,6 @@ set -g status-style 'bg=#13161d fg=#8b949e'
 set -g status-left-length 20
 set -g status-right-length 50
 
-# If SSH_CLIENT is set, override the background to blue
-if-shell 'test -n "$SSH_CLIENT"' \
-  "set -g status-style 'bg=#005fbc fg=#ffffff'"
-
 # The #{?client_prefix,...} part turns the background YELLOW when you press Ctrl+b
 set -g status-left "#{?client_prefix,#[bg=#e6db74]#[fg=#000000] #{prefix} ,#[fg=#00e68a,bold] #S }#[bg=default]#[fg=#30363d]│ "
 
@@ -102,8 +102,8 @@ set -g status-left "#{?client_prefix,#[bg=#e6db74]#[fg=#000000] #{prefix} ,#[fg=
 set -g status-right "#[fg=#8b949e]Swap Mem: #(/usr/sbin/sysctl vm.swapusage | awk '{print $7}') #[fg=#30363d]│#[fg=#8b949e] %d-%m-%Y %H:%M "
 
 # Window status
-setw -g window-status-format ' #I:#W '
-setw -g window-status-current-format '#[fg=#00e68a,bold] #I:#W '
+setw -g window-status-format ' #I:#W#{?#{!=:#{window_panes},1},(#{window_panes}),} '
+setw -g window-status-current-format '#[fg=#00e68a,bold] #I:#W#{?#{!=:#{window_panes},1},(#{window_panes}),} '
 
 # Pane border colors
 set -g pane-border-style 'fg=#30363d'
